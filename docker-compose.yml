@@ -1,0 +1,87 @@
+version: "3.5"
+
+services:
+  php:
+    build: ./docker/php-fpm
+    container_name: php-fpm
+    volumes:
+      - ${PATH_HOST}/project:${PATH_CONTAINER}
+      - ${PATH_HOST}/logs/xdebug:/var/log/xdebug
+    working_dir: ${PATH_CONTAINER}
+    environment:
+      XDEBUG_CONFIG: "client_host=192.168.222.1 start_with_request=no client_port=9008"
+      XDEBUG_SESSION: "PHPVCS"
+      PHP_IDE_CONFIG: "serverName=school-server"
+    ports:
+      - "25:25"
+      - "587:587"
+#      - "2525:2525" # данный порт используется в том случае, если интернет провайдер фильтрует порт 25
+    networks:
+      - app_net
+
+  nginx:
+    build:
+      context: docker/nginx
+    container_name: http-nginx
+    volumes:
+      - ${PATH_HOST}/project:${PATH_CONTAINER}
+      - ${PATH_HOST}/logs/nginx:/var/log/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - php
+    networks:
+      app_net:
+        aliases: # алиасы нужны если нужно общаться внутри сети между хостами. Например, если вы используете api
+          - school.loc
+
+  postgres:
+    image: postgres:14
+    container_name: pg-db
+    restart: always
+    environment:
+      POSTGRES_HOST: ${DB_CONNECT}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: ${DB_MOUNT}
+    volumes:
+      - pg_data:${DB_MOUNT}
+    ports:
+      - "5432:5432"
+    depends_on:
+      - nginx
+    networks:
+      - app_net
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:6.4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_USER}@school.loc
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASS}
+    ports:
+      - "8080:80"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+    networks:
+      - app_net
+
+volumes:
+  pg_data:
+  nodejs:
+    driver: local
+  postgres:
+    driver: local
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.222.0/28

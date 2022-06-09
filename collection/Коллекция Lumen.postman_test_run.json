@@ -1,0 +1,282 @@
+{
+	"id": "9a5d3b0b-2822-44f3-86e2-8acfdf3574b6",
+	"name": "Коллекция Lumen",
+	"timestamp": "2022-06-08T03:30:11.513Z",
+	"collection_id": "0-fa0419e0-0cbd-4bb1-a1b3-38275daffc17",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "eeed49c5-5087-4dba-8323-a9fd2fceb019",
+			"name": "http://school.loc/api/users/register",
+			"url": "http://school.loc/api/users/register",
+			"time": 311,
+			"responseCode": {
+				"code": 418,
+				"name": "I'm a teapot"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				311
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "e216bc54-15a6-498c-bf9a-57011d81428a",
+			"name": "http://school.loc/api/users/login",
+			"url": "http://school.loc/api/users/login",
+			"time": 256,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				256
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "7dc5fc12-e044-4df4-b5e1-896c555c8694",
+			"name": "http://school.loc/api/users",
+			"url": "http://school.loc/api/users",
+			"time": 316,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				316
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "4da7e279-4ea0-4dd0-9b81-53313a0e845f",
+			"name": "http://school.loc/api/users/logout",
+			"url": "http://school.loc/api/users/logout",
+			"time": 120,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				120
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "833a2a47-f680-483f-9141-2eee587799e2",
+			"name": "http://school.loc/api/users/refresh",
+			"url": "http://school.loc/api/users/refresh",
+			"time": 82,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				82
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "211505a2-dc99-487e-88e9-fc5125a1c27d",
+			"name": "http://school.loc/api/users/44",
+			"url": "http://school.loc/api/users/44",
+			"time": 83,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				83
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "2487c3c0-b469-403a-89c0-ba9eb15c807f",
+			"name": "http://school.loc/api/users/2",
+			"url": "http://school.loc/api/users/2",
+			"time": 74,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				74
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "68898ffc-6ab2-4a9e-8846-9d7936f0a26c",
+			"name": "http://school.loc/api/lottery_games",
+			"url": "http://school.loc/api/lottery_games",
+			"time": 217,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				217
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "1c32f0e1-e40a-46a9-bd7a-b36af3a5e74c",
+			"name": "http://school.loc/api/lottery_game_matchs",
+			"url": "http://school.loc/api/lottery_game_matchs",
+			"time": 124,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				124
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "b7751ee0-3474-46f0-b5ee-58a95aed7715",
+			"name": "http://school.loc/api/lottery_game_matchs",
+			"url": "http://school.loc/api/lottery_game_matchs",
+			"time": 67,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				67
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "2f94d2e2-b334-4998-9f23-fd52115e2afd",
+			"name": "http://school.loc/api/lottery_game_match_users",
+			"url": "http://school.loc/api/lottery_game_match_users",
+			"time": 74,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				74
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "8096eec2-d509-46d5-88b5-433898a2ea42",
+			"name": "http://school.loc/api/lottery_game_matchs?lottery_game_id=2",
+			"url": "http://school.loc/api/lottery_game_matchs?lottery_game_id=2",
+			"time": 130,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				130
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 1854,
+	"collection": {
+		"requests": [
+			{
+				"id": "eeed49c5-5087-4dba-8323-a9fd2fceb019",
+				"method": "POST"
+			},
+			{
+				"id": "e216bc54-15a6-498c-bf9a-57011d81428a",
+				"method": "POST"
+			},
+			{
+				"id": "7dc5fc12-e044-4df4-b5e1-896c555c8694",
+				"method": "GET"
+			},
+			{
+				"id": "4da7e279-4ea0-4dd0-9b81-53313a0e845f",
+				"method": "GET"
+			},
+			{
+				"id": "833a2a47-f680-483f-9141-2eee587799e2",
+				"method": "GET"
+			},
+			{
+				"id": "211505a2-dc99-487e-88e9-fc5125a1c27d",
+				"method": "PUT"
+			},
+			{
+				"id": "2487c3c0-b469-403a-89c0-ba9eb15c807f",
+				"method": "DELETE"
+			},
+			{
+				"id": "68898ffc-6ab2-4a9e-8846-9d7936f0a26c",
+				"method": "GET"
+			},
+			{
+				"id": "1c32f0e1-e40a-46a9-bd7a-b36af3a5e74c",
+				"method": "POST"
+			},
+			{
+				"id": "b7751ee0-3474-46f0-b5ee-58a95aed7715",
+				"method": "PUT"
+			},
+			{
+				"id": "2f94d2e2-b334-4998-9f23-fd52115e2afd",
+				"method": "POST"
+			},
+			{
+				"id": "8096eec2-d509-46d5-88b5-433898a2ea42",
+				"method": "GET"
+			}
+		]
+	}
+}
