@@ -5,6 +5,7 @@
 /source/logs/
 /source/redis/
 /source/project/.vscode/
+/source/project/client/
 /src-tmp/
 /doc/
 ###> END General for docker container ###
