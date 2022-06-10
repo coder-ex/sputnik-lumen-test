@@ -24,5 +24,6 @@
 ### необходимые конфигурации проекта
 * composer create-project --prefer-dist laravel/lumen server
 * composer require lumen-jwt
+* php artisan migrate
 
 ---
