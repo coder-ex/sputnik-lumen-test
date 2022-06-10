@@ -1,3 +1,7 @@
+### ТЗ тестовой работы
+    ООО Спутник https://sputnikfund.ru/
+    ТЗ находится в ./task
+
 ### стек разработки
     docker + docker-compose + nginx + php-fpm + nodejs + postgres + pgadmin
 
@@ -20,5 +24,5 @@
 ### необходимые конфигурации проекта
 * composer create-project --prefer-dist laravel/lumen server
 * composer require lumen-jwt
-  
+
 ---
