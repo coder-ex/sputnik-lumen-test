@@ -2,13 +2,16 @@
 
 namespace App\Http\Services;
 
+use App\Mail\VerifyMail;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Hash;
+use Ramsey\Uuid\Uuid;
 
 class UserService
 {
     private $token_service;
+    private $mail_service;
 
     /**
      * Create a new controller instance.
@@ -18,17 +21,18 @@ class UserService
     public function __construct()
     {
         $this->token_service = new TokenService();
+        $this->mail_service = new MailService();
     }
 
     public function registration(string $email, string $password)
     {
         $candidate = User::where('email', $email)->first();
         if (!is_null($candidate)) {
-            return ['error' => 'Пользователь с E-Mail: ' . $email . ' уже существует.'];
+            throw new Exception('Пользователь с E-Mail: ' . $email . ' уже существует.');
         }
 
         $hash_password = Hash::make($password);
-        $activation_link = uniqid();
+        $activation_link = Uuid::uuid4();
 
         $user = new User();
         $user->email = $email;
@@ -36,8 +40,11 @@ class UserService
         $user->activation_link = $activation_link;
         $user->save();
 
+        //--- to mail
+        $this->mail_service->sendActivationMail(new VerifyMail($user), $email, $activation_link);
+
         $tokens = $this->token_service->generate($user);
-        $this->token_service->save($user->id, $tokens['refresh']);
+        $this->token_service->save($user->id, $tokens['refreshToken']);
         //---
         return [$tokens, $user];
     }
@@ -46,16 +53,16 @@ class UserService
     {
         $user = User::where('email', $email)->first();
         if (is_null($user)) {
-            return ['error' => 'Пользователь с E-Mail: ' . $email . ' не существует.'];
+            throw new Exception('Пользователь с E-Mail: ' . $email . ' не существует.');
         }
 
         $hash_pass = Hash::check($password, $user->password);
         if (!$hash_pass) {
-            return ['error' => 'Не верный пароль.'];
+            throw new Exception('Не верный пароль.');
         }
 
         $tokens = $this->token_service->generate($user);
-        $this->token_service->save($user->id, $tokens['refresh']);
+        $this->token_service->save($user->id, $tokens['refreshToken']);
         //---
         return [$tokens, $user];
     }
@@ -65,18 +72,33 @@ class UserService
         return $this->token_service->remove($refresh_token);
     }
 
+    public function activate(string $link)
+    {
+        $user = User::where('activation_link', $link)->first();
+        if (is_null($user)) {
+            throw new Exception('Линк активации не валидный.');
+        }
+
+        if ($user->is_activated) {
+            throw new Exception('Пользователь уже активирован.');
+        }
+
+        $user->is_activated = true;
+        $user->save();
+    }
+
     public function refresh(string $refresh_token)
     {
         $user_data = TokenService::validate($refresh_token, env('JWT_REFRESH_SECRET'));
         $token_from_db = $this->token_service->findToken($refresh_token);
 
         if (is_null($user_data) || is_null($token_from_db)) {
-            return ['error' => 'Пользователь не авторизован.'];
+            throw new Exception('Пользователь не авторизован.');
         }
 
         $user = User::where('id', $user_data->sub)->first();
         $tokens = $this->token_service->generate($user);
-        $this->token_service->save($user->id, $tokens['refresh']);
+        $this->token_service->save($user->id, $tokens['refreshToken']);
         //---
         return [$tokens, $user];
     }

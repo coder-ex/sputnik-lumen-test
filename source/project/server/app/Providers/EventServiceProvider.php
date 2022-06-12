@@ -19,6 +19,10 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\FinishMatchEvent::class => [
             \App\Listeners\FinishMatchListener::class,
         ],
+
+        \App\Events\ActivateMailEvent::class => [
+            \App\Listeners\ActivateMailListener::class,
+        ],
     ];
 
     /**

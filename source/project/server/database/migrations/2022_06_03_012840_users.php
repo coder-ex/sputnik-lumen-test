@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('is_admin')->default(0);
             $table->string('password');
             $table->timestamps();
+            $table->boolean('is_activated')->default(0);
             $table->string('activation_link')->nullable();
             $table->integer('points')->default(0);
         });

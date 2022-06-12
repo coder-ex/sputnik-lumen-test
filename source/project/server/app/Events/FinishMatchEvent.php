@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 
 class FinishMatchEvent extends Event
 {
-    use InteractsWithSockets, SerializesModels;
+    use InteractsWithSockets; //, SerializesModels;
 
     /**
      * матч игры

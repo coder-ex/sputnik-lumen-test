@@ -9,7 +9,7 @@ use Illuminate\Queue\SerializesModels;
 
 class SaveUserMatchEvent extends Event
 {
-    use InteractsWithSockets, SerializesModels;
+    use InteractsWithSockets; //, SerializesModels;
 
     /**
      * пользователь

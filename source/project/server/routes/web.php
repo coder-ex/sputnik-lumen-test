@@ -2,6 +2,8 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -18,8 +20,9 @@ $router->get('/', function () use ($router) {
 });
 
 $router->post('api/users/register', ['uses' => 'UserController@registration']);
-$router->post('api/users/login', ['uses' => 'UserController@login']);
+$router->post('api/users/login', ['as' => 'login', 'uses' => 'UserController@login']);
 $router->get('api/users/logout', ['uses' => 'UserController@logout']);
+$router->get('api/users/activate/{link}', ['uses' => 'UserController@activate']);
 $router->get('api/users/refresh', ['uses' => 'UserController@refresh']);
 $router->get('api/lottery_games', ['uses' => 'LotteryController@getAllGames']);
 $router->get('api/lottery_game_matchs', ['uses' => 'LotteryController@getMatches']);

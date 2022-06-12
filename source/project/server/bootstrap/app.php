@@ -23,6 +23,8 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
+['name' => env('APP_NAME', 'Laravel'),];
+
 $app->withFacades();
 
 $app->withEloquent();
@@ -63,6 +65,50 @@ $app->configure('app');
 
 /*
 |--------------------------------------------------------------------------
+| Register Mail service
+|--------------------------------------------------------------------------
+|
+| Registration of the Mail B and his Aliasov application
+|
+*/
+
+$app->configure('mail');
+
+$app->alias('mail.manager', Illuminate\Mail\MailManager::class);
+$app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
+
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
+
+/*
+|--------------------------------------------------------------------------
+| Register Queue
+|--------------------------------------------------------------------------
+|
+| Registration of the queue and listeners
+|
+*/
+
+$app->configure('queue');
+
+/*
+|--------------------------------------------------------------------------
+| Register CORS
+|--------------------------------------------------------------------------
+|
+| Registration of the Queue B and his Aliasov application
+| registration of the provider service in the providers section
+*/
+
+$app->configure('cors');
+
+$app->middleware([
+    Fruitcake\Cors\HandleCors::class,
+]);
+
+/*
+|--------------------------------------------------------------------------
 | Register Middleware
 |--------------------------------------------------------------------------
 |
@@ -97,6 +143,8 @@ $app->routeMiddleware([
 // $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Laravel\Tinker\TinkerServiceProvider::class);
+$app->register(Illuminate\Mail\MailServiceProvider::class);
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

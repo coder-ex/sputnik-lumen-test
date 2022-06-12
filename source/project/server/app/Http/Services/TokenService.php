@@ -25,8 +25,8 @@ class TokenService
 
         //---
         return [
-            'access' => $access_token,
-            'refresh' => $refresh_token
+            'accessToken' => $access_token,
+            'refreshToken' => $refresh_token
         ];
     }
 

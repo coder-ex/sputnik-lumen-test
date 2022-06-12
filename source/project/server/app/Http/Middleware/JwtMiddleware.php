@@ -38,7 +38,6 @@ class JwtMiddleware
 
         //--- поместим пользователя в класс запросов, чтобы вы могли его подхватить оттуда
         $req->auth = User::find($user_data->sub);
-        $t = $req->auth;
         //---
         return $next($req);
     }
