@@ -7,8 +7,8 @@ use App\Mail\VerifyMail;
 
 class MailService
 {
-    public function sendActivationMail(VerifyMail $verify_mail, string $to, string $link = null)
+    public function sendActivationMail(VerifyMail $verifyMail, string $to, string $link = null)
     {
-        dispatch(new ActivateMailJob($verify_mail, $to)); //->onQueue('email');
+        dispatch(new ActivateMailJob($verifyMail, $to)); //->onQueue('email');
     }
 }

@@ -26,7 +26,7 @@ class UserController extends BaseController
      */
     public function __construct()
     {
-        $this->user_service = new UserService();
+        $this->userService = new UserService();
     }
 
     /**
@@ -43,19 +43,18 @@ class UserController extends BaseController
                 'password'  => 'required|min:5|max:32|string'
             ]);
 
-            $user_data = $this->user_service->registration($req['email'], $req['password']);
-            [$token, $user] = $user_data;
+            $data = $this->userService->registration($req['email'], $req['password']);
 
-            //return response()->json($user_data)->cookie('refreshToken', $token['refresh'], array('expires' => 30 * 24 * 60 * 60 * 1000, 'httponly' => true));
             setcookie(
                 'refreshToken',
-                $token['refresh'],
-                array('expires' => intval(env('JWT_REFRESH_SECRET')) * 1000, 'httponly' => true)
+                $data['refreshToken'],
+                array('expires' => intval(env('JWT_REFRESH_SECRET')) * 1000, 'httponly' => true/*, 'SameSite' => 'None', 'Secure' => true*/)
             );
+
             //---
-            return response()->json($user_data);
+            return response()->json($data);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 400);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 422);
         }
     }
 
@@ -67,36 +66,34 @@ class UserController extends BaseController
                 'password'  => 'required|min:5|max:32|string'
             ]);
 
-            $user_data = $this->user_service->login($req['email'], $req['password']);
-            [$token, $user] = $user_data;
-            //return response()->json($user_data)->cookie('refreshToken', $token['refresh'], array('expires' => 30 * 24 * 60 * 60 * 1000, 'httponly' => true));
+            $data = $this->userService->login($req['email'], $req['password']);
+
             setcookie(
                 'refreshToken',
-                $token['refreshToken'],
-                array('expires' => intval(env('JWT_REFRESH_SECRET')) * 1000, 'httponly' => true)
+                $data['refreshToken'],
+                array('expires' => intval(env('JWT_REFRESH_SECRET')) * 1000, 'httponly' => true/*, 'SameSite' => 'None', 'Secure' => true*/)
             );
 
-            $token['user'] = $user;
             //---
-            return response()->json($token);
+            return response()->json($data);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 401);
         }
     }
 
     public function logout(Request $req)
     {
         try {
-            $refresh_token = $req->cookie('refreshToken');
-            if (is_null($refresh_token)) {
-                return response()->json(['message' => 'Token уже удален.'], 401);
+            $refreshToken = $req->cookie('refreshToken');
+            if (is_null($refreshToken)) {
+                throw new Exception('Пользователь не авторизован.', 401);
             }
-            $token = $this->user_service->logout($refresh_token);
+            $token = $this->userService->logout($refreshToken);
 
             setcookie('refreshToken');
             return response()->json($token);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 401);
         }
     }
 
@@ -104,36 +101,36 @@ class UserController extends BaseController
     {
         try {
             if (is_null($req['link'])) {
-                return response()->json(['message' => 'Нет данных link.'], 401);
+                throw new Exception('Нет данных link.', 400);
             }
 
-            $this->user_service->activate($req['link']);
-            return redirect(url(env('CLIENT_URL')));
+            $this->userService->activate($req['link']);
+            return redirect(url(env('CLIENT_URL')), 201);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 401);
         }
     }
 
     public function refresh(Request $req)
     {
         try {
-            $refresh_token = $req->cookie('refreshToken');
-            if (is_null($refresh_token)) {
-                return response()->json(['message' => 'Token уже удален.'], 401);
+            $refreshToken = $req->cookie('refreshToken');
+            if (is_null($refreshToken)) {
+                throw new Exception('Пользователь не авторизован.', 401);
             }
 
-            $user_data = $this->user_service->refresh($refresh_token);
-            [$token, $user] = $user_data;
+            $data = $this->userService->refresh($refreshToken);
+
             setcookie(
                 'refreshToken',
-                $token['refreshToken'],
-                array('expires' => intval(env('JWT_REFRESH_SECRET')) * 1000, 'httponly' => true)
+                $data['refreshToken'],
+                array('expires' => intval(env('JWT_REFRESH_SECRET')) * 1000, 'httponly' => true/*, 'SameSite' => 'None', 'Secure' => true*/)
             );
-            $token['user'] = $user;
+
             //---
-            return response()->json($token);
+            return response()->json($data);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 401);
         }
     }
 
@@ -146,35 +143,37 @@ class UserController extends BaseController
                 'password' => 'required|min:5|max:32|string'
             ]);
 
-            $access_token = explode(' ', $req->headers->get('Authorization'), PHP_INT_MAX)[1];
-            $user_data = [
-                $access_token,
+            $accessToken = explode(' ', $req->headers->get('Authorization'), PHP_INT_MAX)[1];
+            $data = [
+                $accessToken,
                 $req['name'],
                 $req['email'],
                 $req['password']
             ];
-            return response()->json($this->user_service->editUser(...$user_data), 200);
+
+            //---
+            return response()->json($this->userService->editUser(...$data), 200);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 401);
         }
     }
 
     public function delete(Request $req)
     {
         try {
-            $access_token = explode(' ', $req->headers->get('Authorization'), PHP_INT_MAX)[1];
-            return response()->json($this->user_service->deleteUser($access_token), 200);
+            $accessToken = explode(' ', $req->headers->get('Authorization'), PHP_INT_MAX)[1];
+            return response()->json($this->userService->deleteUser($accessToken), 200);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 401);
         }
     }
 
     public function getUsers(Request $req)
     {
         try {
-            return response()->json($this->user_service->getUsers());
+            return response()->json($this->userService->getUsers());
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ? $e->getCode() : 401);
         }
     }
 }

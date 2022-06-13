@@ -14,10 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tokens', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('refresh_token')->nullable();
 
-            $table->unsignedBigInteger('user_id');
+            $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

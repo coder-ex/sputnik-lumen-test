@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Mail;
 
 class ActivateMailJob extends Job
 {
-    private $verify_mail;
+    private $verifyMail;
     private $to;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(VerifyMail $verify_mail, string $to)
+    public function __construct(VerifyMail $verifyMail, string $to)
     {
-        $this->verify_mail = $verify_mail;
+        $this->verifyMail = $verifyMail;
         $this->to = $to;
     }
 
@@ -25,8 +25,8 @@ class ActivateMailJob extends Job
      *
      * @return void
      */
-    public function handle(/*VerifyMail $verify_mail, string $to*/)
+    public function handle()
     {
-        Mail::to($this->to)->send($this->verify_mail);
+        Mail::to($this->to)->send($this->verifyMail);
     }
 }

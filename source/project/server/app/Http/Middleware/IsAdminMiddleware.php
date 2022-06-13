@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
 //use Illuminate\Support\Facades\Auth;
 
@@ -12,8 +13,8 @@ class IsAdminMiddleware
     {
         if (!$req->auth->is_admin) {
             return response()->json([
-                'error' => 'Пользователь ' . $req->auth->email . ' не администратор.'
-            ], 401);
+                'message' => 'Пользователь ' . $req->auth->email . ' не администратор.'
+            ], 403);
         }
 
         return $next($req);

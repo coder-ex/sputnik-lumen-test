@@ -15,7 +15,7 @@ class LotteryController extends BaseController
      *
      * @var App\Http\Services\LotteryService
      */
-    private $lottery_service;
+    private $lotteryService;
 
     /**
      * Create a new controller instance.
@@ -24,16 +24,16 @@ class LotteryController extends BaseController
      */
     public function __construct()
     {
-        $this->lottery_service = new LotteryService();
+        $this->lotteryService = new LotteryService();
     }
 
     public function getAllGames()
     {
         try {
-            $result = $this->lottery_service->getAllGames();
+            $result = $this->lotteryService->getAllGames();
             return response()->json($result, 200);
         } catch (Exception $e) {
-            return response()->json($e->getMessage(), 401);
+            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
         }
     }
 
@@ -46,10 +46,10 @@ class LotteryController extends BaseController
                 'game_name' => 'required|min:5',
             ]);
 
-            $result = $this->lottery_service->createMatch($req['start_date'], $req['start_time'], $req['game_name']);
+            $result = $this->lotteryService->createMatch($req['start_date'], $req['start_time'], $req['game_name']);
             return response()->json($result, 200);
         } catch (Exception $e) {
-            return response()->json($e->getMessage(), 401);
+            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
         }
     }
 
@@ -61,9 +61,9 @@ class LotteryController extends BaseController
                 'finish' => 'required'
             ]);
 
-            return response()->json($this->lottery_service->finishinghMatch($req['id'], $req['finish']));
+            return response()->json($this->lotteryService->finishinghMatch($req['id'], $req['finish']));
         } catch (Exception $e) {
-            return response()->json($e->getMessage(), 401);
+            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
         }
     }
 
@@ -75,9 +75,9 @@ class LotteryController extends BaseController
                 'user_id'  => 'required',
             ]);
 
-            return response()->json($this->lottery_service->saveUserGame($req['user_id'], $req['match_id']));
+            return response()->json($this->lotteryService->saveUserGame($req['user_id'], $req['match_id']));
         } catch (Exception $e) {
-            return response()->json($e->getMessage(), 401);
+            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
         }
     }
 
@@ -87,9 +87,9 @@ class LotteryController extends BaseController
             $this->validate($req, [
                 'lottery_game_id' => 'required',
             ]);
-            return response()->json($this->lottery_service->getMatches($req['lottery_game_id']));
+            return response()->json($this->lotteryService->getMatches($req['lottery_game_id']));
         } catch (Exception $e) {
-            return response()->json($e->getMessage(), 401);
+            return response()->json(['message' => $e->getMessage()], isset($e->status) ? $e->status : 401);
         }
     }
 }

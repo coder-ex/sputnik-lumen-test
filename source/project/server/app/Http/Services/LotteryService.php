@@ -9,6 +9,7 @@ use App\Models\GameLottery;
 use App\Models\MatchLottery;
 use App\Models\User;
 use DateTime;
+use Exception;
 
 class LotteryService
 {
@@ -22,26 +23,34 @@ class LotteryService
         return $games;
     }
 
-    public function createMatch(string $startDate, string $startTime, string $nameGame)
+    /**
+     * создание матча игры
+     *
+     * @param string $date - дата начала
+     * @param string $time - время начала
+     * @param string $name - имя игры
+     * @return MatchLottery
+     */
+    public function createMatch(string $date, string $time, string $name): MatchLottery
     {
-        $current_date = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 00:00:00');
-        $start_date = DateTime::createFromFormat('Y-m-d H:i:s', $startDate . ' 00:00:00');
-        if ($current_date > $start_date) {
-            return ['status' => 'Дата начала старта матча не может быть раньше сегодня.'];
+        $dateCurrent = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 00:00:00');
+        $startDate = DateTime::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
+        if ($dateCurrent > $startDate) {
+            throw new Exception('Дата начала старта матча не может быть раньше сегодня.');
         }
 
-        $start_time = DateTime::createFromFormat('H:i:s', $startTime);
-        $match_t = MatchLottery::where('start_time', $start_time)->first();
+        $startTime = DateTime::createFromFormat('H:i:s', $time);
+        $match_t = MatchLottery::where('start_time', $startTime)->first();
         if (!is_null($match_t)) {
-            if ($match_t->start_time === $start_time->format('Y-m-d H:i:s') && $match_t->game->name === $nameGame) {
-                return ['status' => 'Время матча в одной игре одно и то же, необходимо исправить.'];
+            if ($match_t->start_time === $startTime->format('Y-m-d H:i:s') && $match_t->game->name === $name) {
+                throw new Exception('Время матча в одной игре одно и то же, необходимо исправить.');
             }
         }
 
-        $game = GameLottery::where('name', $nameGame)->first();
+        $game = GameLottery::where('name', $name)->first();
         $match = new MatchLottery();
-        $match->start_date = $start_date;
-        $match->start_time = $start_time;
+        $match->start_date = $startDate;
+        $match->start_time = $startTime;
 
         $match->game_id = $game->id;
         $match->save();
@@ -50,15 +59,22 @@ class LotteryService
         return $match;
     }
 
-    public function finishinghMatch(string|int $matchId, bool $isFinish)
+    /**
+     * завершение матча
+     *
+     * @param string|integer $matchId
+     * @param boolean $isFinish
+     * @return MatchLottery
+     */
+    public function finishinghMatch(string|int $matchId, bool $isFinish): MatchLottery
     {
         $match = MatchLottery::where('id', $matchId)->first();
         if (is_null($match)) {
-            return ['status' => 'Матч не найден.'];
+            throw new Exception('Матч не найден.');
         }
 
         if ($match->is_finished) {
-            return ['status' => 'Матч уже завершен, результаты объявлены ранее.'];
+            throw new Exception('Матч уже завершен, результаты объявлены ранее.');
         }
 
         $match->is_finished = $isFinish;
@@ -72,24 +88,34 @@ class LotteryService
     }
 
     /**
-     * поля: user_id, match_id
-     * проверки: Один пользователь не может дважды записаться на один и тот же матч.
+     * запись пользователя на игру
+     *
+     * @param string|integer $userId
+     * @param string|integer $matchId
+     * @return User
+     * @remark проверки: Один пользователь не может дважды записаться на один и тот же матч.
      */
-    public function saveUserGame(string|int $user_id, string|int $match_id)
+    public function saveUserGame(string|int $userId, string|int $matchId): User
     {
-        $match = MatchLottery::where('id', $match_id)->first();
+        $match = MatchLottery::where('id', $matchId)->first();
         if (is_null($match)) {
-            return ['status' => 'Такого матча не существует.'];
+            throw new Exception('Такого матча не существует.');
         }
 
         //--- запись пользователя на матч
-        $user = User::where('id', $user_id)->first();
-        event(new SaveUserMatchEvent($user, $match, $match_id));
+        $user = User::where('id', $userId)->first();
+        event(new SaveUserMatchEvent($user, $match, $matchId));
 
         return $user;
     }
 
-    public function getMatches(string|int $gameId)
+    /**
+     * получение всех матчей игры
+     *
+     * @param string|integer $gameId
+     * @return GameLottery
+     */
+    public function getMatches(string|int $gameId): GameLottery
     {
         return GameLottery::where('id', $gameId)->first()->matches;
     }

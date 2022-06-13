@@ -14,15 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::create('lottery_game_matches', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->dateTime('start_date', $precision = 0);
             $table->timestamp('start_time', $precision = 0);
             $table->boolean('is_finished')->default(0);
 
-            $table->unsignedBigInteger('game_id')->nullable();
+            $table->uuid('game_id')->nullable();
             $table->foreign('game_id')->references('id')->on('lottery_games')->onDelete('cascade');
 
-            $table->unsignedBigInteger('winner_id')->nullable();
+            $table->uuid('winner_id')->nullable();
             $table->foreign('winner_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

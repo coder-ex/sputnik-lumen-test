@@ -15,29 +15,29 @@ class JwtMiddleware
 {
     public function handle(Request $req, Closure $next, $guard = null)
     {
-        $auth_header = $req->headers->get('Authorization');
-        if (is_null($auth_header)) {
+        $authHeader = $req->headers->get('Authorization');
+        if (is_null($authHeader)) {
             return response()->json([
-                'error' => 'Пользователь не авторизован.'
+                'message' => 'Пользователь не авторизован.'
             ], 401);
         }
 
-        $access_token = explode(' ', $auth_header, PHP_INT_MAX)[1];
-        if (is_null($access_token)) {
+        $accessToken = explode(' ', $authHeader, PHP_INT_MAX)[1];
+        if (is_null($accessToken)) {
             return response()->json([
-                'error' => 'Пользователь не авторизован.'
+                'message' => 'Пользователь не авторизован.'
             ], 401);
         }
 
-        $user_data = TokenService::validate($access_token, env('JWT_ACCESS_SECRET'));
-        if (is_null($user_data)) {
+        $data = TokenService::validate($accessToken, env('JWT_ACCESS_SECRET'));
+        if (is_null($data)) {
             return response()->json([
-                'error' => 'Пользователь не авторизован.'
+                'message' => 'Пользователь не авторизован.'
             ], 401);
         }
 
         //--- поместим пользователя в класс запросов, чтобы вы могли его подхватить оттуда
-        $req->auth = User::find($user_data->sub);
+        $req->auth = User::find($data->sub);
         //---
         return $next($req);
     }

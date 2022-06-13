@@ -10,8 +10,8 @@ use Ramsey\Uuid\Uuid;
 
 class UserService
 {
-    private $token_service;
-    private $mail_service;
+    private $tokenService;
+    private $mailService;
 
     /**
      * Create a new controller instance.
@@ -20,106 +20,124 @@ class UserService
      */
     public function __construct()
     {
-        $this->token_service = new TokenService();
-        $this->mail_service = new MailService();
+        $this->tokenService = new TokenService();
+        $this->mailService = new MailService();
     }
 
     public function registration(string $email, string $password)
     {
         $candidate = User::where('email', $email)->first();
         if (!is_null($candidate)) {
-            throw new Exception('Пользователь с E-Mail: ' . $email . ' уже существует.');
+            throw new Exception('Пользователь с E-Mail: ' . $email . ' уже существует.', 400);
         }
 
-        $hash_password = Hash::make($password);
-        $activation_link = Uuid::uuid4();
+        $hashPassword = Hash::make($password);
+        $activationLink = Uuid::uuid4();
 
         $user = new User();
         $user->email = $email;
-        $user->password = $hash_password;
-        $user->activation_link = $activation_link;
+        $user->password = $hashPassword;
+        $user->activation_link = $activationLink;
         $user->save();
 
         //--- to mail
-        $this->mail_service->sendActivationMail(new VerifyMail($user), $email, $activation_link);
+        $this->mailService->sendActivationMail(new VerifyMail($user), $email, $activationLink);
 
-        $tokens = $this->token_service->generate($user);
-        $this->token_service->save($user->id, $tokens['refreshToken']);
+        $data = $this->tokenService->generate($user);
+        $this->tokenService->save($user->id, $data['refreshToken']);
+        $data['user'] = $user;
         //---
-        return [$tokens, $user];
+        return $data;
     }
 
     public function login(string $email, string $password)
     {
         $user = User::where('email', $email)->first();
         if (is_null($user)) {
-            throw new Exception('Пользователь с E-Mail: ' . $email . ' не существует.');
+            throw new Exception('Пользователь с E-Mail: ' . $email . ' не существует.', 400);
         }
 
-        $hash_pass = Hash::check($password, $user->password);
-        if (!$hash_pass) {
-            throw new Exception('Не верный пароль.');
+        $hashPass = Hash::check($password, $user->password);
+        if (!$hashPass) {
+            throw new Exception('Не верный пароль.', 400);
         }
 
-        $tokens = $this->token_service->generate($user);
-        $this->token_service->save($user->id, $tokens['refreshToken']);
+        if (!$user->is_activated) {
+            throw new Exception('Пользователь ' . $email . ' не подтвердил E-Mail.', 401);
+        }
+
+        $data = $this->tokenService->generate($user);
+        $this->tokenService->save($user->id, $data['refreshToken']);
+        $data['user'] = $user;
         //---
-        return [$tokens, $user];
+        return $data;
     }
 
-    public function logout(string $refresh_token)
+    public function logout(string $refreshToken)
     {
-        return $this->token_service->remove($refresh_token);
+        return $this->tokenService->remove($refreshToken);
     }
 
     public function activate(string $link)
     {
         $user = User::where('activation_link', $link)->first();
         if (is_null($user)) {
-            throw new Exception('Линк активации не валидный.');
+            throw new Exception('Линк активации не валидный.', 401);
         }
 
         if ($user->is_activated) {
-            throw new Exception('Пользователь уже активирован.');
+            throw new Exception('Пользователь уже активирован.', 202);
         }
 
         $user->is_activated = true;
         $user->save();
     }
 
-    public function refresh(string $refresh_token)
+    public function refresh(string $refreshToken)
     {
-        $user_data = TokenService::validate($refresh_token, env('JWT_REFRESH_SECRET'));
-        $token_from_db = $this->token_service->findToken($refresh_token);
+        $data = TokenService::validate($refreshToken, env('JWT_REFRESH_SECRET'));
+        $token = $this->tokenService->findToken($refreshToken);
 
-        if (is_null($user_data) || is_null($token_from_db)) {
+        if (is_null($data) || is_null($token)) {
             throw new Exception('Пользователь не авторизован.');
         }
 
-        $user = User::where('id', $user_data->sub)->first();
-        $tokens = $this->token_service->generate($user);
-        $this->token_service->save($user->id, $tokens['refreshToken']);
+        $user = User::where('id', $data->sub)->first();
+        $data = $this->tokenService->generate($user);
+        $this->tokenService->save($user->id, $data['refreshToken']);
+        $data['user'] = $user;
         //---
-        return [$tokens, $user];
+        return $data;
     }
 
-    public function editUser($token, $name, $email, $password)
+    /**
+     * редактирование данных пользователя
+     *
+     * @param [type] $token
+     * @param [type] $name
+     * @param [type] $email
+     * @param [type] $password
+     * @return User
+     */
+    public function editUser($token, $name, $email, $password): User
     {
-        $user_data = TokenService::validate($token, env('JWT_ACCESS_SECRET'));
-        $user = User::where('id', $user_data->sub)->first();
+        $data = TokenService::validate($token, env('JWT_ACCESS_SECRET'));
+        $user = User::where('id', $data->sub)->first();
         $user->name = $name ? $name : $user->name;
         $user->email = $email ? $email : $user->email;
         $user->password = $password ? Hash::make($password) : $user->password;
         $user->save();
         $user->tokens;
+        //---
         return $user;
     }
 
     public function deleteUser(string $token)
     {
-        $user_data = TokenService::validate($token, env('JWT_ACCESS_SECRET'));
-        $user = User::where('id', $user_data->sub)->first();
+        $data = TokenService::validate($token, env('JWT_ACCESS_SECRET'));
+        $user = User::where('id', $data->sub)->first();
         $user->delete();
+        //---
         return $user;
     }
 
@@ -129,6 +147,7 @@ class UserService
         foreach ($users as $user) {
             $user->matches;
         }
+        //---
         return $users;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\SaveUserMatchEvent;
+use Exception;
 
 class SaveUserMatchListener
 {
@@ -27,14 +28,14 @@ class SaveUserMatchListener
         $flag = false;
         $count = $event->match->game->gamer_count;
         if (count($event->match->users) >= $count) {
-            print_r(json_encode(['status' => 'На матч может записаться не больше [' . $count . '] в игре количества участников.'], JSON_UNESCAPED_UNICODE));
+            throw new Exception('На матч может записаться не больше [' . $count . '] в игре количества участников.');
             $flag = true;
         }
 
         if (!$flag) {
             foreach ($event->user->matches as $match) {
                 if ($match->id === $event->match_id) {
-                    print_r(json_encode(['status' => 'Пользователь уже записан на данный матч.'], JSON_UNESCAPED_UNICODE));
+                    throw new Exception('Пользователь уже записан на данный матч.');
                     $flag = true;
                     break;
                 }

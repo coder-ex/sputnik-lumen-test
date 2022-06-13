@@ -19,14 +19,14 @@ class TokenService
             'exp' => time() + env('EXP_ACCESS') // экспирация access token
         ];
 
-        $access_token = JWT::encode($payload, env('JWT_ACCESS_SECRET'), 'HS256');
+        $accessToken = JWT::encode($payload, env('JWT_ACCESS_SECRET'), 'HS256');
         $payload['exp'] = time() + env('EXP_REFRESH');   // экспирация refresh token
-        $refresh_token = JWT::encode($payload, env('JWT_REFRESH_SECRET'), 'HS256');
+        $refreshToken = JWT::encode($payload, env('JWT_REFRESH_SECRET'), 'HS256');
 
         //---
         return [
-            'accessToken' => $access_token,
-            'refreshToken' => $refresh_token
+            'accessToken' => $accessToken,
+            'refreshToken' => $refreshToken
         ];
     }
 
@@ -45,19 +45,19 @@ class TokenService
         }
     }
 
-    public function remove(string $refresh_token)
+    public function remove(string $refreshToken)
     {
-        $token = Token::where('refresh_token', $refresh_token)->first();
+        $token = Token::where('refresh_token', $refreshToken)->first();
         $token->delete();
         return $token;
     }
 
-    public function save(int $userId, string $refresh)
+    public function save(string|int $userId, string $refresh)
     {
-        $token_data = Token::where('user_id', $userId)->first();
-        if (!is_null($token_data)) {
-            $token_data->refresh_token = $refresh;
-            return $token_data->save();
+        $tokenData = Token::where('user_id', $userId)->first();
+        if (!is_null($tokenData)) {
+            $tokenData->refresh_token = $refresh;
+            return $tokenData->save();
         }
 
         $token = new Token();
